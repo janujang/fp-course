@@ -187,12 +187,10 @@ filter p = foldRight (\a b -> if p a then a :. b else b) Nil
   List a ->
   List a ->
   List a
-(++) = error ""
-
--- Nil ++ Nil = Nil
--- l1 ++ Nil = l1
--- Nil ++ l2 = l2
--- (head :. rest) ++ l2 = head :. rest ++ l2
+Nil ++ Nil = Nil
+l1 ++ Nil = l1
+Nil ++ l2 = l2
+(h :. t) ++ l2 = h :. t ++ l2
 
 infixr 5 ++
 
