@@ -207,8 +207,8 @@ infixr 5 ++
 flatten ::
   List (List a) ->
   List a
-flatten =
-  error "todo: Course.List#flatten"
+flatten Nil = Nil
+flatten (l1 :. lrest) = l1 ++ flatten lrest
 
 -- | Map a function then flatten to a list.
 --
@@ -224,8 +224,8 @@ flatMap ::
   (a -> List b) ->
   List a ->
   List b
-flatMap =
-  error "todo: Course.List#flatMap"
+flatMap _ Nil = Nil
+flatMap f (h :. t) = f h ++ flatMap f t
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
@@ -234,8 +234,8 @@ flatMap =
 flattenAgain ::
   List (List a) ->
   List a
-flattenAgain =
-  error "todo: Course.List#flattenAgain"
+flattenAgain Nil = Nil
+flattenAgain l = flatMap id l
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -259,8 +259,12 @@ flattenAgain =
 seqOptional ::
   List (Optional a) ->
   Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+seqOptional Nil = Full Nil
+seqOptional (h :. t) = case h of
+  Empty -> Empty
+  Full x -> case seqOptional t of
+    Empty -> Empty
+    Full xs -> Full (x :. xs)
 
 -- | Find the first element in the list matching the predicate.
 --
