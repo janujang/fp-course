@@ -27,6 +27,8 @@ import qualified Prelude as P
 -- >>> import Course.Core(even, id, const)
 -- >>> import qualified Prelude as P(fmap, foldr)
 -- >>> instance Arbitrary a => Arbitrary (List a) where arbitrary = P.fmap ((P.foldr (:.) Nil) :: ([a] -> List a)) arbitrary
+-- Could not find module `Test.QuickCheck'
+-- Use -v (or `:set -v` in ghci) to see a list of the files searched for.
 
 -- BEGIN Helper functions and data types
 
@@ -286,27 +288,46 @@ find ::
   (a -> Bool) ->
   List a ->
   Optional a
-find =
-  error "todo: Course.List#find"
+find _ Nil = Empty
+find f (h :. t) =
+  if f h
+    then Full h
+    else find f t
+
+-- find f (h :. t)
+--   | f h = Full h
+--   | otherwise = find f t
 
 -- | Determine if the length of the given list is greater than 4.
 --
 -- >>> lengthGT4 (1 :. 3 :. 5 :. Nil)
--- False
+-- WAS WAS WAS False
+-- WAS WAS NOW todo: Course.List#lengthGT4
+-- WAS NOW False
+-- NOW False
 --
 -- >>> lengthGT4 Nil
--- False
+-- WAS WAS WAS False
+-- WAS WAS NOW todo: Course.List#lengthGT4
+-- WAS NOW False
+-- NOW False
 --
 -- >>> lengthGT4 (1 :. 2 :. 3 :. 4 :. 5 :. Nil)
--- True
+-- WAS WAS WAS True
+-- WAS WAS NOW todo: Course.List#lengthGT4
+-- WAS NOW True
+-- NOW True
 --
 -- >>> lengthGT4 infinity
--- True
+-- WAS WAS WAS True
+-- WAS WAS NOW todo: Course.List#lengthGT4
+-- WAS NOW True
+-- NOW True
 lengthGT4 ::
   List a ->
   Bool
-lengthGT4 =
-  error "todo: Course.List#lengthGT4"
+lengthGT4 (_ :. _ :. _ :. _ :. _ :. _) = True
+lengthGT4 _ = False
 
 -- | Reverse a list.
 --
@@ -322,8 +343,10 @@ lengthGT4 =
 reverse ::
   List a ->
   List a
-reverse =
-  error "todo: Course.List#reverse"
+reverse = go Nil
+  where
+    go a Nil = a
+    go a (h :. t) = go (h :. a) t
 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
@@ -337,8 +360,7 @@ produce ::
   (a -> a) ->
   a ->
   List a
-produce f x =
-  error "todo: Course.List#produce"
+produce f x = x :. produce f (f x)
 
 -- | Do anything other than reverse a list.
 -- Is it even possible?
@@ -352,8 +374,7 @@ produce f x =
 notReverse ::
   List a ->
   List a
-notReverse =
-  error "todo: Is it even possible?"
+notReverse a = a
 
 ---- End of list exercises
 
