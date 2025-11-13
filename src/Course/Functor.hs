@@ -65,6 +65,7 @@ instance Functor List where
 --
 -- >>> (+1) <$> Full 2
 -- Full 3
+-- Functor Instance Declaration
 instance Functor Optional where
   (<$>) ::
     (a -> b) ->
@@ -72,6 +73,14 @@ instance Functor Optional where
     Optional b
   _ <$> Empty = Empty
   f <$> (Full v) = Full (f v)
+
+--   -- Instead of:
+-- case maybeValue of
+--   Empty -> Empty
+--   Full x -> Full (f x)
+
+-- -- You can write:
+-- f <$> maybeValue
 
 -- | Maps a function on the reader ((->) t) functor.
 --
@@ -83,7 +92,11 @@ instance Functor ((->) t) where
     (a -> b) ->
     (t -> a) ->
     (t -> b)
-  (<$>) = (.)
+  (<$>) f ta = \t -> f (ta t)
+
+-- (<$>) f ta t = f (ta t)
+
+-- (<$>) = (.)
 
 -- The functor instance for a function is composition
 
@@ -95,6 +108,15 @@ instance Functor ((->) t) where
 -- prop> \x a b c -> x <$ (a :. b :. c :. Nil) == (x :. x :. x :. Nil)
 --
 -- prop> \x q -> x <$ Full q == Full x
+-- Type Signature (k must be an instance of the Functor typeclass)
+-- If k is Optional, the Optional functor instance is used
+-- The function (<$) takes a value of type a and a functor k containing values of type b,
+-- and returns a functor k containing values of type a, where k must be a Functor
+
+-- For List:
+-- 7 <$ (1 :. 2 :. 3 :. Nil)
+-- (<$) :: Int -> List Int -> List Int
+
 (<$) ::
   (Functor k) =>
   a ->
@@ -119,6 +141,9 @@ a <$ kb = const a <$> kb
 --
 -- >>> Empty ?? 2
 -- Empty
+
+-- Given function(s) wrapped in a functor and a bare value,
+-- apply that value to all the functions and keep the results in the same functor structure.
 (??) ::
   (Functor k) =>
   k (a -> b) ->

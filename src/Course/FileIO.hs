@@ -1,15 +1,16 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RebindableSyntax #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
 module Course.FileIO where
 
-import Course.Core
 import Course.Applicative
-import Course.Monad
+import Course.Core
 import Course.Functor
 import Course.List
+import Course.Monad
 
 {-
 
@@ -60,7 +61,7 @@ To test this module, load ghci in the root of the project directory, and do
 
 Example output:
 
-$ ghci
+\$ ghci
 GHCi, version ...
 Loading package...
 Loading ...
@@ -82,49 +83,46 @@ the contents of c
 -- Given the file name, and file contents, print them.
 -- Use @putStrLn@.
 printFile ::
-  FilePath
-  -> Chars
-  -> IO ()
-printFile =
-  error "todo: Course.FileIO#printFile"
+  FilePath ->
+  Chars ->
+  IO ()
+printFile path contents =
+  putStrLn ("============" ++ path) >>= \_ -> putStrLn contents
 
 -- Given a list of (file name and file contents), print each.
 -- Use @printFile@.
 printFiles ::
-  List (FilePath, Chars)
-  -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+  List (FilePath, Chars) ->
+  IO ()
+printFiles Nil = pure ()
+printFiles ((path, contents) :. rest) = printFile path contents >>= \_ -> putStrLn "" >>= \_ -> printFiles rest
 
 -- Given a file name, return (file name and file contents).
 -- Use @readFile@.
 getFile ::
-  FilePath
-  -> IO (FilePath, Chars)
-getFile =
-  error "todo: Course.FileIO#getFile"
+  FilePath ->
+  IO (FilePath, Chars)
+getFile path = (path,) <$> readFile path
 
 -- Given a list of file names, return list of (file name and file contents).
 -- Use @getFile@.
 getFiles ::
-  List FilePath
-  -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo: Course.FileIO#getFiles"
+  List FilePath ->
+  IO (List (FilePath, Chars))
+getFiles Nil = pure Nil
+getFiles (path :. rest) = getFile path >>= \file -> (file :.) <$> getFiles rest
 
 -- Given a file name, read it and for each line in that file, read and print contents of each.
 -- Use @getFiles@, @lines@, and @printFiles@.
 run ::
-  FilePath
-  -> IO ()
-run =
-  error "todo: Course.FileIO#run"
+  FilePath ->
+  IO ()
+run path = readFile path >>= getFiles . lines >>= printFiles
 
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main =
-  error "todo: Course.FileIO#main"
+main = getArgs >>= \fps -> void . sequence $ run <$> fps
 
 ----
 
