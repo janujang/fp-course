@@ -94,8 +94,11 @@ printFile path contents =
 printFiles ::
   List (FilePath, Chars) ->
   IO ()
-printFiles Nil = pure ()
-printFiles ((path, contents) :. rest) = printFile path contents >>= \_ -> putStrLn "" >>= \_ -> printFiles rest
+-- printFiles Nil = pure ()
+-- printFiles ((path, contents) :. rest) = printFile path contents >>= \_ -> putStrLn "" >>= \_ -> printFiles rest
+
+-- printFiles files = void . sequence $ (\(p, c) -> printFile p c) <$> files
+printFiles files = mapM_ printFile files
 
 -- Given a file name, return (file name and file contents).
 -- Use @readFile@.
@@ -109,8 +112,11 @@ getFile path = (path,) <$> readFile path
 getFiles ::
   List FilePath ->
   IO (List (FilePath, Chars))
-getFiles Nil = pure Nil
-getFiles (path :. rest) = getFile path >>= \file -> (file :.) <$> getFiles rest
+-- getFiles Nil = pure Nil
+-- getFiles (path :. rest) = getFile path >>= \file -> (file :.) <$> getFiles rest
+
+-- getFiles paths = sequence $ getFile <$> paths
+getFiles paths = mapM getFile paths
 
 -- Given a file name, read it and for each line in that file, read and print contents of each.
 -- Use @getFiles@, @lines@, and @printFiles@.
@@ -130,3 +136,7 @@ main = getArgs >>= \fps -> void . sequence $ run <$> fps
 -- ? `sequence . (<$>)`
 -- ? `void . sequence . (<$>)`
 -- Factor it out.
+
+mapM f x = sequence $ f <$> x
+
+mapM_ f x = void $ mapM f x
