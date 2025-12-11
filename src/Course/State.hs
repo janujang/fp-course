@@ -202,8 +202,20 @@ distinct ::
   (Ord a) =>
   List a ->
   List a
-distinct =
-  error "todo: Course.State#distinct"
+distinct l =
+  listh
+    $ S.toList
+    $ flip exec S.empty
+    $ filtering
+      ( \a ->
+          State
+            ( \s ->
+                if S.member a s
+                  then (True, s)
+                  else (False, S.insert a s)
+            )
+      )
+      l
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -229,5 +241,7 @@ distinct =
 isHappy ::
   Integer ->
   Bool
-isHappy =
-  error "todo: Course.State#isHappy"
+isHappy x = firstRepeat (produce sumOfSquares x) == Full 1
+
+sumOfSquares :: Integer -> Integer
+sumOfSquares x = toInteger $ sum $ (\c -> digitToInt c * digitToInt c) <$> listh (show x)
