@@ -98,7 +98,7 @@ printFiles ::
 -- printFiles ((path, contents) :. rest) = printFile path contents >>= \_ -> putStrLn "" >>= \_ -> printFiles rest
 
 -- printFiles files = void . sequence $ (\(p, c) -> printFile p c) <$> files
-printFiles files = mapM_ printFile files
+printFiles files = mapM_ (uncurry printFile) files
 
 -- Given a file name, return (file name and file contents).
 -- Use @readFile@.
