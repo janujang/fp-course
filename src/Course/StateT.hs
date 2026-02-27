@@ -296,7 +296,6 @@ instance (Monad k) => Applicative (OptionalT k) where
     OptionalT k b
   kab <*> ka = OptionalT $ runOptionalT kab >>= (\ab -> case ab of Empty -> pure Empty; Full f -> runOptionalT ka >>= (\a -> pure $ f <$> a))
 
-
 -- | Implement the `Monad` instance for `OptionalT k` given a Monad k.
 --
 -- >>> runOptionalT $ (\a -> OptionalT (Full (a+1) :. Full (a+2) :. Nil)) =<< OptionalT (Full 1 :. Empty :. Nil)
@@ -306,7 +305,7 @@ instance (Monad k) => Monad (OptionalT k) where
     (a -> OptionalT k b) ->
     OptionalT k a ->
     OptionalT k b
-  akb =<< ka = OptionalT $ runOptionalT ka >>= (\a -> case a of Full x -> runOptionalT $ akb x ; Empty -> pure Empty)
+  akb =<< ka = OptionalT $ runOptionalT ka >>= (\a -> case a of Full x -> runOptionalT $ akb x; Empty -> pure Empty)
 
 -- | A `Logger` is a pair of a list of log values (`[l]`) and an arbitrary value (`a`).
 data Logger l a
@@ -323,7 +322,6 @@ instance Functor (Logger l) where
     Logger l a ->
     Logger l b
   f <$> (Logger l a) = Logger l $ f a
-    
 
 -- | Implement the `Applicative` instance for `Logger`.
 --
@@ -354,8 +352,10 @@ instance Monad (Logger l) where
     (a -> Logger l b) ->
     Logger l a ->
     Logger l b
-  alb =<< (Logger l a) = let (Logger l1 b) = alb a
-                          in Logger (l ++ l1) b
+  alb =<< (Logger l a) =
+    let (Logger l1 b) = alb a
+     in Logger (l ++ l1) b
+
 -- | A utility function for producing a `Logger` with one log value.
 --
 -- >>> log1 1 2
@@ -384,7 +384,27 @@ distinctG ::
   (Integral a, Show a) =>
   List a ->
   Logger Chars (Optional (List a))
-distinctG la = runOptionalT . flip evalT S.empty . filtering (\a -> StateT (\s -> ))
+distinctG =
+  runOptionalT
+    . flip evalT S.empty
+    . filtering
+      ( \a ->
+          StateT
+            ( \s ->
+                OptionalT
+                  ( if a > 100
+                      then log1 ("aborting > 100: " ++ show' a) Empty
+                      else
+                        let logging =
+                              if even a
+                                then log1 ("even number: " ++ show' a)
+                                else pure
+                         in if S.member a s
+                              then logging (Full (False, s))
+                              else logging (Full (True, S.insert a s))
+                  )
+            )
+      )
 
 onFull ::
   (Applicative k) =>
